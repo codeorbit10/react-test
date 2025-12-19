@@ -37,17 +37,33 @@ export const useUserStore = create<UserState>((set, get) => ({
   loading: false,
   error: undefined,
   offline: false,
+  manualOffline: false,
   loadPage: async (page = 1) => {
     if (page < 1) return;
 
-    set({ loading: true, error: undefined, currentPage: page });
+    const manualOffline = get().manualOffline;
+    set({
+      loading: true,
+      error: undefined,
+      currentPage: page,
+      offline: manualOffline || get().offline,
+    });
 
     const cachedUsers = await readCachedPage(page);
     if (cachedUsers.length) {
-      set((state) => ({
-        usersByPage: { ...state.usersByPage, [page]: cachedUsers },
-        offline: typeof navigator !== "undefined" ? !navigator.onLine : state.offline,
-      }));
+      set({
+        usersByPage: { ...get().usersByPage, [page]: cachedUsers },
+        offline: manualOffline || (typeof navigator !== "undefined" ? !navigator.onLine : get().offline),
+      });
+    }
+
+    if (manualOffline) {
+      set({
+        loading: false,
+        error: cachedUsers.length ? undefined : "Offline mode: no cached data for this page yet.",
+        offline: true,
+      });
+      return;
     }
 
     try {
@@ -60,13 +76,13 @@ export const useUserStore = create<UserState>((set, get) => ({
         offline: false,
       }));
     } catch {
-      set((state) => ({
+      set({
         loading: false,
         error: cachedUsers.length
           ? undefined
           : "Unable to fetch users right now. Check your connection and try again.",
-        offline: cachedUsers.length > 0 || state.offline,
-      }));
+        offline: true,
+      });
     }
   },
   nextPage: async () => {
@@ -76,5 +92,9 @@ export const useUserStore = create<UserState>((set, get) => ({
   prevPage: async () => {
     const prev = Math.max(1, get().currentPage - 1);
     await get().loadPage(prev);
+  },
+  setManualOffline: async (on: boolean) => {
+    set({ manualOffline: on });
+    await get().loadPage(get().currentPage);
   },
 }));

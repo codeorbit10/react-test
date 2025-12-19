@@ -8,7 +8,9 @@ export type UserState = {
   loading: boolean;
   error?: string;
   offline: boolean;
+  manualOffline: boolean;
   loadPage: (page?: number) => Promise<void>;
   nextPage: () => Promise<void>;
   prevPage: () => Promise<void>;
+  setManualOffline: (on: boolean) => Promise<void>;
 };

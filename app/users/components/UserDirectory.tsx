@@ -5,12 +5,23 @@ import { Button } from "@/components/ui/Button";
 import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { OfflineBadge } from "@/components/ui/OfflineBadge";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
+import { Spinner } from "@/components/ui/Spinner";
 import { useUserStore } from "@/users/store/useUserStore";
 import { UserCard } from "./UserCard";
 
 export function UserDirectory() {
-  const { currentPage, usersByPage, loading, error, offline, loadPage, nextPage, prevPage } =
-    useUserStore();
+  const {
+    currentPage,
+    usersByPage,
+    loading,
+    error,
+    offline,
+    manualOffline,
+    loadPage,
+    nextPage,
+    prevPage,
+    setManualOffline,
+  } = useUserStore();
 
   const users = usersByPage[currentPage] ?? [];
 
@@ -35,7 +46,17 @@ export function UserDirectory() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <label className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-200">
+              <input
+                type="checkbox"
+                checked={manualOffline}
+                onChange={(event) => setManualOffline(event.target.checked)}
+                className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500 dark:border-zinc-700 dark:bg-zinc-900"
+              />
+              Go offline
+            </label>
             {offline && <OfflineBadge />}
+            {loading && <Spinner label="Loading" />}
             <Button onClick={() => loadPage(currentPage)} disabled={loading}>
               {loading ? "Refreshing..." : "Refresh"}
             </Button>
