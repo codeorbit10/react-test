@@ -6,14 +6,18 @@ import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { OfflineBadge } from "@/components/ui/OfflineBadge";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { Spinner } from "@/components/ui/Spinner";
+import { SORT_FIELDS } from "@/users/constants/sorting";
 import { useUserStore } from "@/users/store/useUserStore";
 import { UserCard } from "./UserCard";
+import { UserDirectoryFooter } from "./UserDirectoryFooter";
 
 export function UserDirectory() {
   const {
     currentPage,
     usersByPage,
     searchTerm,
+    sortBy,
+    sortDirection,
     loading,
     error,
     offline,
@@ -23,18 +27,35 @@ export function UserDirectory() {
     prevPage,
     setManualOffline,
     setSearchTerm,
+    setSort,
   } = useUserStore();
 
-  const users = (usersByPage[currentPage] ?? []).filter((user) => {
-    if (!searchTerm.trim()) return true;
-    const query = searchTerm.toLowerCase();
-    return (
-      user.fullName.toLowerCase().includes(query) ||
-      user.email.toLowerCase().includes(query) ||
-      user.city.toLowerCase().includes(query) ||
-      user.country.toLowerCase().includes(query)
-    );
-  });
+  const usersRaw = usersByPage[currentPage] ?? [];
+  const users = usersRaw
+    .filter((user) => {
+      if (!searchTerm.trim()) return true;
+      const query = searchTerm.toLowerCase();
+      return (
+        user.fullName.toLowerCase().includes(query) ||
+        user.email.toLowerCase().includes(query) ||
+        user.city.toLowerCase().includes(query) ||
+        user.country.toLowerCase().includes(query)
+      );
+    })
+    .sort((a, b) => {
+      const direction = sortDirection === "asc" ? 1 : -1;
+      const fieldValue = {
+        name: [a.fullName.toLowerCase(), b.fullName.toLowerCase()],
+        email: [a.email.toLowerCase(), b.email.toLowerCase()],
+        city: [a.city.toLowerCase(), b.city.toLowerCase()],
+        country: [a.country.toLowerCase(), b.country.toLowerCase()],
+      }[sortBy];
+
+      if (!fieldValue) return 0;
+      if (fieldValue[0] < fieldValue[1]) return -1 * direction;
+      if (fieldValue[0] > fieldValue[1]) return 1 * direction;
+      return 0;
+    });
 
   useEffect(() => {
     loadPage(1);
@@ -66,7 +87,7 @@ export function UserDirectory() {
               />
               Go offline
             </label>
-            {offline && <OfflineBadge />}
+            {offline && usersRaw.length > 0 && <OfflineBadge />}
             {loading && <Spinner label="Loading" />}
             <Button onClick={() => loadPage(currentPage)} disabled={loading}>
               {loading ? "Refreshing..." : "Refresh"}
@@ -74,8 +95,8 @@ export function UserDirectory() {
           </div>
         </header>
 
-        <section className="mt-6">
-          <label className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-200">
+        <section className="mt-6 max-w-3xl">
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-200">
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Search
             </span>
@@ -86,7 +107,32 @@ export function UserDirectory() {
               placeholder="Filter by name, email, or location"
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-900/50"
             />
-          </label>
+          </div>
+        </section>
+
+        <section className="mt-4 max-w-3xl text-sm text-slate-700 dark:text-slate-200">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Sort by
+            </span>
+            <select
+              value={sortBy}
+              onChange={(event) => setSort(event.target.value as (typeof SORT_FIELDS)[number], sortDirection)}
+              className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-800 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-900/50"
+            >
+              {SORT_FIELDS.map((field) => (
+                <option key={field} value={field}>
+                  {field[0].toUpperCase() + field.slice(1)}
+                </option>
+              ))}
+            </select>
+            <Button
+              variant="ghost"
+              onClick={() => setSort(sortBy, sortDirection === "asc" ? "desc" : "asc")}
+            >
+              {sortDirection === "asc" ? "Asc" : "Desc"}
+            </Button>
+          </div>
         </section>
 
         <section className="mt-8">
@@ -100,27 +146,20 @@ export function UserDirectory() {
 
           {!loading && users.length === 0 && !error && (
             <div className="mt-10 rounded-xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500 dark:border-zinc-800 dark:bg-zinc-900">
-              No users to show yet. Try refreshing to fetch data.
+              {offline
+                ? "Offline mode: no cached data for this page yet."
+                : "No users to show yet. Try refreshing to fetch data."}
             </div>
           )}
         </section>
 
-        <footer className="mt-10 flex flex-col items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-300 sm:flex-row">
-          <div className="flex items-center gap-2">
-            <span className="font-semibold text-slate-900 dark:text-white">Page {currentPage}</span>
-            <span className="text-slate-500 dark:text-slate-400">
-              Showing {users.length} users
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" onClick={prevPage} disabled={currentPage === 1 || loading}>
-              Previous
-            </Button>
-            <Button variant="secondary" onClick={nextPage} disabled={loading}>
-              Next
-            </Button>
-          </div>
-        </footer>
+        <UserDirectoryFooter
+          currentPage={currentPage}
+          userCount={users.length}
+          loading={loading}
+          onPrev={prevPage}
+          onNext={nextPage}
+        />
       </div>
     </main>
   );

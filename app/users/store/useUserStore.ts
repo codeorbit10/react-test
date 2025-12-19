@@ -3,6 +3,7 @@
 import { type CachedUser } from "@/lib/db";
 import { readCachedPage, savePage } from "@/lib/userCache";
 import { create } from "zustand";
+import { SORT_FIELDS } from "@/users/constants/sorting";
 import type { RandomUserResponse, UsersByPage, UserState } from "@/users/types";
 
 const API_URL = "https://randomuser.me/api/";
@@ -35,6 +36,8 @@ export const useUserStore = create<UserState>((set, get) => ({
   currentPage: 1,
   usersByPage: {} as UsersByPage,
   searchTerm: "",
+  sortBy: SORT_FIELDS[0],
+  sortDirection: "asc",
   loading: false,
   error: undefined,
   offline: false,
@@ -99,4 +102,5 @@ export const useUserStore = create<UserState>((set, get) => ({
     await get().loadPage(get().currentPage);
   },
   setSearchTerm: (term: string) => set({ searchTerm: term }),
+  setSort: (field, direction) => set({ sortBy: field, sortDirection: direction }),
 }));
