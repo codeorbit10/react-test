@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/Button";
 import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { OfflineBadge } from "@/components/ui/OfflineBadge";
 import { SearchInput } from "@/components/ui/SearchInput";
-import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { Spinner } from "@/components/ui/Spinner";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { OFFLINE_NO_CACHE_MESSAGE } from "@/users/constants/messages";
@@ -150,17 +149,23 @@ export function UserDirectory() {
         <section className="mt-8">
           {error && <ErrorNotice message={error} />}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            {loading && users.length === 0
-              ? Array.from({ length: 6 }).map((_, idx) => <SkeletonCard key={idx} />)
-              : users.map((user) => <UserCard key={user.id} user={user} />)}
-          </div>
-
-          {!loading && users.length === 0 && !error && (
-            <div className="mt-10 rounded-xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500 dark:border-zinc-800 dark:bg-zinc-900">
-              {offline ? OFFLINE_NO_CACHE_MESSAGE : "No users to show yet. Try refreshing to fetch data."}
+          {loading && users.length === 0 ? (
+            <div className="flex items-center justify-center py-10">
+              <Spinner label="Loading users..." />
+            </div>
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {users.map((user) => (
+                <UserCard key={user.id} user={user} />
+              ))}
+              {!loading && users.length === 0 && !error && (
+                <div className="col-span-full mt-6 rounded-xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500 dark:border-zinc-800 dark:bg-zinc-900">
+                  {offline ? OFFLINE_NO_CACHE_MESSAGE : "No users to show yet. Try refreshing to fetch data."}
+                </div>
+              )}
             </div>
           )}
+
         </section>
 
         <UserDirectoryFooter
