@@ -2,8 +2,11 @@
 module.exports = {
   clearMocks: true,
   testEnvironment: "jsdom",
-  setupFilesAfterEnv: [],
+  setupFilesAfterEnv: ["<rootDir>/jest.setup.js"],
   moduleNameMapper: {
+    "^@/components/(.*)$": "<rootDir>/app/components/$1",
+    "^@/users/(.*)$": "<rootDir>/app/users/$1",
+    "^@/lib/(.*)$": "<rootDir>/lib/$1",
     "^@/(.*)$": "<rootDir>/$1",
     "\\.(css|less|scss|sass)$": "<rootDir>/__mocks__/styleMock.js",
   },
