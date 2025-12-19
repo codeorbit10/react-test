@@ -6,6 +6,7 @@ import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { OfflineBadge } from "@/components/ui/OfflineBadge";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { Spinner } from "@/components/ui/Spinner";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { OFFLINE_NO_CACHE_MESSAGE } from "@/users/constants/messages";
 import { SORT_FIELDS } from "@/users/constants/sorting";
 import { useUserStore } from "@/users/store/useUserStore";
@@ -100,26 +101,31 @@ export function UserDirectory() {
         </header>
 
         <section className="mt-6 max-w-3xl">
-          <div
-            className={`${controlSurface} flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200`}
-          >
-            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
-              Search
-            </span>
-            <input
-              type="search"
-              value={searchTerm}
-              onChange={(event) => setSearchTerm(event.target.value)}
-              placeholder="Filter by name, email, or location"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-900/50"
-            />
+          <div className="flex items-center justify-between gap-3">
+            <div
+              className={`${controlSurface} flex flex-1 items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200`}
+            >
+              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                Search
+              </span>
+              <input
+                type="search"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder="Filter by name, email, or location"
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-900/50"
+              />
+            </div>
+            <ThemeToggle />
           </div>
         </section>
+
         {loading && usersRaw.length === 0 && (
           <div className="mt-8 flex items-center justify-center">
             <Spinner label="Loading users..." />
           </div>
         )}
+
         <section className="mt-4 max-w-3xl text-sm text-slate-700 dark:text-slate-200">
           <div
             className={`${controlSurface} flex flex-wrap items-center gap-2 px-4 py-2 dark:text-slate-200`}
