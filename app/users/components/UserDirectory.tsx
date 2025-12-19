@@ -6,10 +6,14 @@ import { ErrorNotice } from "@/components/ui/ErrorNotice";
 import { OfflineBadge } from "@/components/ui/OfflineBadge";
 import { SkeletonCard } from "@/components/ui/SkeletonCard";
 import { Spinner } from "@/components/ui/Spinner";
+import { OFFLINE_NO_CACHE_MESSAGE } from "@/users/constants/messages";
 import { SORT_FIELDS } from "@/users/constants/sorting";
 import { useUserStore } from "@/users/store/useUserStore";
 import { UserCard } from "./UserCard";
 import { UserDirectoryFooter } from "./UserDirectoryFooter";
+
+const controlSurface =
+  "rounded-xl border border-slate-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900";
 
 export function UserDirectory() {
   const {
@@ -96,7 +100,9 @@ export function UserDirectory() {
         </header>
 
         <section className="mt-6 max-w-3xl">
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-200">
+          <div
+            className={`${controlSurface} flex items-center gap-2 px-4 py-2 text-sm text-slate-700 dark:text-slate-200`}
+          >
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Search
             </span>
@@ -111,7 +117,9 @@ export function UserDirectory() {
         </section>
 
         <section className="mt-4 max-w-3xl text-sm text-slate-700 dark:text-slate-200">
-          <div className="flex flex-wrap items-center gap-2">
+          <div
+            className={`${controlSurface} flex flex-wrap items-center gap-2 px-4 py-2 dark:text-slate-200`}
+          >
             <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
               Sort by
             </span>
@@ -146,9 +154,7 @@ export function UserDirectory() {
 
           {!loading && users.length === 0 && !error && (
             <div className="mt-10 rounded-xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500 dark:border-zinc-800 dark:bg-zinc-900">
-              {offline
-                ? "Offline mode: no cached data for this page yet."
-                : "No users to show yet. Try refreshing to fetch data."}
+              {offline ? OFFLINE_NO_CACHE_MESSAGE : "No users to show yet. Try refreshing to fetch data."}
             </div>
           )}
         </section>

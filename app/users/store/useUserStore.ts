@@ -3,10 +3,10 @@
 import { type CachedUser } from "@/lib/db";
 import { readCachedPage, savePage } from "@/lib/userCache";
 import { create } from "zustand";
+import { PAGE_SIZE, RANDOM_USER_API } from "@/users/constants/api";
+import { FETCH_ERROR_MESSAGE, OFFLINE_NO_CACHE_MESSAGE } from "@/users/constants/messages";
 import { SORT_FIELDS } from "@/users/constants/sorting";
 import type { RandomUserResponse, UsersByPage, UserState } from "@/users/types";
-
-const API_URL = "https://randomuser.me/api/";
 
 const mapUser = (page: number, user: RandomUserResponse["results"][number]): CachedUser => ({
   id: user.login.uuid,
@@ -21,7 +21,7 @@ const mapUser = (page: number, user: RandomUserResponse["results"][number]): Cac
 });
 
 const fetchUsers = async (page: number): Promise<CachedUser[]> => {
-  const url = `${API_URL}?page=${page}&results=10`;
+  const url = `${RANDOM_USER_API}?page=${page}&results=${PAGE_SIZE}`;
   const response = await fetch(url, { cache: "no-store" });
 
   if (!response.ok) {
@@ -64,7 +64,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     if (manualOffline) {
       set({
         loading: false,
-        error: cachedUsers.length ? undefined : "Offline mode: no cached data for this page yet.",
+        error: cachedUsers.length ? undefined : OFFLINE_NO_CACHE_MESSAGE,
         offline: true,
       });
       return;
@@ -82,9 +82,7 @@ export const useUserStore = create<UserState>((set, get) => ({
     } catch {
       set({
         loading: false,
-        error: cachedUsers.length
-          ? undefined
-          : "Unable to fetch users right now. Check your connection and try again.",
+        error: cachedUsers.length ? undefined : FETCH_ERROR_MESSAGE,
         offline: true,
       });
     }
