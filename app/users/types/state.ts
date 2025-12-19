@@ -20,4 +20,5 @@ export type UserState = {
   setManualOffline: (on: boolean) => Promise<void>;
   setSearchTerm: (term: string) => void;
   setSort: (field: SortField, direction: SortDirection) => void;
+  toggleFavorite: (userId: string) => Promise<void>;
 };

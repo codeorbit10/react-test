@@ -1,7 +1,7 @@
 "use client";
 
 import { type CachedUser } from "@/lib/db";
-import { readCachedPage, savePage } from "@/lib/userCache";
+import { readCachedPage, savePage, setFavorite } from "@/lib/userCache";
 import { create } from "zustand";
 import { PAGE_SIZE, RANDOM_USER_API } from "@/users/constants/api";
 import { FETCH_ERROR_MESSAGE, OFFLINE_NO_CACHE_MESSAGE } from "@/users/constants/messages";
@@ -101,4 +101,22 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
   setSearchTerm: (term: string) => set({ searchTerm: term }),
   setSort: (field, direction) => set({ sortBy: field, sortDirection: direction }),
+  toggleFavorite: async (userId: string) => {
+    const currentState = get();
+    let nextFavorite = false;
+
+    const updatedUsersByPage = Object.fromEntries(
+      Object.entries(currentState.usersByPage).map(([page, list]) => {
+        const updatedList = list.map((user) => {
+          if (user.id !== userId) return user;
+          nextFavorite = !user.favorite;
+          return { ...user, favorite: nextFavorite };
+        });
+        return [Number(page), updatedList];
+      }),
+    ) as UsersByPage;
+
+    set({ usersByPage: updatedUsersByPage });
+    await setFavorite(userId, nextFavorite);
+  },
 }));

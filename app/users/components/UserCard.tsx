@@ -1,13 +1,15 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import type { CachedUser } from "@/lib/db";
 import Image from "next/image";
 
 type Props = {
   user: CachedUser;
+  onToggleFavorite: (id: string) => void;
 };
 
-export function UserCard({ user }: Props) {
+export function UserCard({ user, onToggleFavorite }: Props) {
   return (
     <article className="flex gap-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
       <Image
@@ -25,6 +27,14 @@ export function UserCard({ user }: Props) {
           {user.city}, {user.country}
         </p>
         <p className="text-sm text-zinc-600 dark:text-zinc-400">{user.phone}</p>
+        <Button
+          variant={user.favorite ? "secondary" : "ghost"}
+          onClick={() => onToggleFavorite(user.id)}
+          className="mt-2 w-fit px-3 py-1 text-xs"
+        >
+          <span aria-hidden>{user.favorite ? "★" : "☆"}</span>
+          {user.favorite ? "Favorited" : "Favorite"}
+        </Button>
       </div>
     </article>
   );

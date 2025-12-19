@@ -33,6 +33,7 @@ export function UserDirectory() {
     setManualOffline,
     setSearchTerm,
     setSort,
+    toggleFavorite,
   } = useUserStore();
 
   const usersRaw = usersByPage[currentPage] ?? [];
@@ -156,7 +157,7 @@ export function UserDirectory() {
           ) : (
             <div className="grid gap-4 sm:grid-cols-2">
               {users.map((user) => (
-                <UserCard key={user.id} user={user} />
+                <UserCard key={user.id} user={user} onToggleFavorite={toggleFavorite} />
               ))}
               {!loading && users.length === 0 && !error && (
                 <div className="col-span-full mt-6 rounded-xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center text-slate-500 dark:border-zinc-800 dark:bg-zinc-900">
