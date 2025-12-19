@@ -34,6 +34,7 @@ const fetchUsers = async (page: number): Promise<CachedUser[]> => {
 export const useUserStore = create<UserState>((set, get) => ({
   currentPage: 1,
   usersByPage: {} as UsersByPage,
+  searchTerm: "",
   loading: false,
   error: undefined,
   offline: false,
@@ -97,4 +98,5 @@ export const useUserStore = create<UserState>((set, get) => ({
     set({ manualOffline: on });
     await get().loadPage(get().currentPage);
   },
+  setSearchTerm: (term: string) => set({ searchTerm: term }),
 }));

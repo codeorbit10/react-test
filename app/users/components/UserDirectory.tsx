@@ -13,6 +13,7 @@ export function UserDirectory() {
   const {
     currentPage,
     usersByPage,
+    searchTerm,
     loading,
     error,
     offline,
@@ -21,9 +22,19 @@ export function UserDirectory() {
     nextPage,
     prevPage,
     setManualOffline,
+    setSearchTerm,
   } = useUserStore();
 
-  const users = usersByPage[currentPage] ?? [];
+  const users = (usersByPage[currentPage] ?? []).filter((user) => {
+    if (!searchTerm.trim()) return true;
+    const query = searchTerm.toLowerCase();
+    return (
+      user.fullName.toLowerCase().includes(query) ||
+      user.email.toLowerCase().includes(query) ||
+      user.city.toLowerCase().includes(query) ||
+      user.country.toLowerCase().includes(query)
+    );
+  });
 
   useEffect(() => {
     loadPage(1);
@@ -62,6 +73,21 @@ export function UserDirectory() {
             </Button>
           </div>
         </header>
+
+        <section className="mt-6">
+          <label className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 dark:text-slate-200">
+            <span className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+              Search
+            </span>
+            <input
+              type="search"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder="Filter by name, email, or location"
+              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-slate-100 dark:focus:border-indigo-500 dark:focus:ring-indigo-900/50"
+            />
+          </label>
+        </section>
 
         <section className="mt-8">
           {error && <ErrorNotice message={error} />}
